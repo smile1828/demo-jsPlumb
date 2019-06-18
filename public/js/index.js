@@ -426,9 +426,10 @@
                 var lineDescs = [];
                 $("#flow-main .line-label").each(function (idx, elem) {
                      var $elem = $(elem);
+                     var lineContent = $elem.children('.label-text').html();
                      lineDescs.push({
                          lineId: $elem.attr('id'),
-                         lineContent: $elem.html(),
+                         lineContent: lineContent,
                          lineX: parseInt($elem.css("left"), 10),
                          lineY: parseInt($elem.css("top"), 10),
                          width: parseInt($elem.width(), 10) + 24,
@@ -441,6 +442,7 @@
                     blocks:blocks,
                     lineDescs:lineDescs
                 }
+                console.log(serliza);
                 //这里只是写了一个简单的保存之后的操作，正常是需要发请求的。请求成功之后，在执行如下操作。
                 layer.confirm('保存成功', function(index){
                     $('#flow-main').html('')
@@ -557,7 +559,7 @@
         draw:function(data){
             var blockDoms = data.blocks;
             blockDoms.forEach(function(item,index){
-                var dom = $('<div class="node-common" id="' + item.blockId + '"><span class="node-text">'+ item.blockContent +'</span></div>')
+                var dom = $('<div class="node-common" id="' + item.blockId + '" data-type="'+ item.type +'"><span class="node-text">'+ item.blockContent +'</span></div>')
                 dom.css("left", item.blockX).css("top",item.blockY);
                 dom.css("width", item.width).css("height",item.height);
                 var type = item.type;
@@ -575,14 +577,12 @@
                             dom.addClass('node-judge'); 
                             break;
                     }
-                $('#flow-main').append(dom); 
-                if(isNew){
-
-                }               
+                $('#flow-main').append(dom);               
             })
             var connect = data.connects;
             connect.forEach(function(item,index){
-                jsPlumb.connect({
+                jsPlumb.ready(function(){
+                    jsPlumb.connect({
                     source: item.pageSourceId,
                     target: item.pageTargetId,
                     anchor: [item.sourcePoint, item.targetPoint],
@@ -593,16 +593,18 @@
                                     fillStyle: "transparent",
                                     radius: 2,
                                     lineWidth: 2},
-                    connector: ["Flowchart", { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }],
+                    connector: ["Flowchart", { stub: [20, 30], gap: 5, cornerRadius: 3, alwaysRespectStubs: true }],
                     overlays: [["Arrow", { width: 10, length: 10, location: 1 }]],                
                     endpointStyle: { fillStyle: 'transparent', strokeStyle: "#000000", lineWidth: 1 ,radius: 2,},
                     isSource: false,
                     isTarget: false
                 })
+                })
+                
             })
             var lineDescs = data.lineDescs;
             lineDescs.forEach(function(item,index){
-                var dom = $('<div class="line-label label-focus" id="' + item.lineId + '" data-path="'+ item.pathId +'"><span class="label-text">'+ item.lineContent +'</span></div>')
+                var dom = $('<div class="line-label label-blur" id="' + item.lineId + '" data-path="'+ item.pathId +'"><span class="label-text">'+ item.lineContent +'</span></div>')
                 dom.css("left", item.lineX).css("top",item.lineY);
                 dom.css("width", item.width).css("height",item.height);
                 $('#flow-main').append(dom);
@@ -610,4 +612,7 @@
         },
     }
     main.init(); 
+    main.draw(data);
 })();
+
+
