@@ -11,7 +11,7 @@
 
 4.连线支持单击选中backspace 和 delete 删除；双击添加 label
 
-5. label 支持单击选中 backspace 和 delete 删除；双击改变内容；拖拽改变大小
+5.label 支持单击选中 backspace 和 delete 删除；双击改变内容；拖拽改变大小
 
 6.保存编辑好的流程图数据
 
