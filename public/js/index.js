@@ -380,6 +380,13 @@
                     $("#" + id).draggable({ containment: "parent",grid: [10, 10] });
                     that.nodeClick(id);
                 });
+                $("#flow-main .line-label").each(function (idx, elem) {
+                    var $elem = $(elem);
+                    var id = $elem.attr('id')
+                    jsPlumb.draggable(id);
+                    $elem.draggable({ containment: "parent" });  
+                    that.labelClick(id);
+                });
             })
             return this;
         },
