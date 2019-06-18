@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>demo-jsplumb</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./public/css/index.css">
+</head>
+<body>
+  <div class="flow">
+      <div class="flow-header">
+        <div class="flow-title">流程编辑器</div>
+        <div>
+          <button id="delete" class="btn btn-default">清空</button>
+          <button id="update" class="btn btn-default">编辑</button>
+          <button id="save" class="btn btn-default">保存</button>
+          <!-- <button id="saveImg" class="btn btn-default">保存为图片</button> -->
+        </div>       
+      </div>
+      <div class="flow-body">
+        <div class="flow-menu">
+          <h5>节点类型列表</h5>
+          <div id="flow-btns" class="flow-btns">
+            <div class="flow-btn btn-base" data-type="base"></div>
+            <div class="flow-btn btn-flow" data-type="flow"></div>
+            <div class="flow-btn btn-node" data-type="node"></div>
+            <div class="flow-btn btn-judge" data-type="judge"></div>
+          </div> 
+        </div>
+        <div  class="flow-container" >
+          <div class="flow-main" id="flow-main">
+            
+          </div>
+        </div>
+      </div>      
+    </div>
+  <script src="https://cdn.bootcss.com/jquery/1.12.1/jquery.min.js"></script>
+  <script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdn.bootcss.com/jsPlumb/1.7.6/jquery.jsPlumb.min.js"></script>
+  <script src="https://cdn.bootcss.com/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+  <script src="https://cdn.bootcss.com/canvg/1.5/canvg.min.js"></script>
+  <script src="public/js/layer/layer.js"></script>
+  <script src="public/js/data.js"></script>
+  <script src="public/js/config.js"></script>
+  <script src="public/js/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1342 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: zhxpk
+  Date: 2017/7/20
+  Time: 18:04
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="/WEB-INF/views/include/taglib.jsp"%>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>编辑套餐</title>
+    <link href="${ctxStatic}/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="${ctxStatic}/jquery-ui-1.11.0/jquery-ui.min.css" rel="stylesheet">
+    <link href="${ctxStatic}/flow-designer/flowStyle.css" rel="stylesheet">
+    <script src="${ctxStatic}/chart/echarts4.min.js"></script>
+    <script src="${ctxStatic}/jquery/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="${ctxStatic}/layui/css/layui.css">
+    <script src="${ctxStatic}/layui/layui.all.js"></script>
+    <link href="${ctxStatic}/jquery-jbox/2.3/Skins/Bootstrap/jbox.min.css" rel="stylesheet" />
+    <script src="${ctxStatic}/jquery-jbox/2.3/jquery.jBox-2.3.min.js" type="text/javascript"></script>
+    <script src="${ctxStatic}/jquery-ui-1.11.0/jquery-ui.min.js"></script>
+    <script src="${ctxStatic}/flow-designer/jquery.jsPlumb-1.4.0-all.js"></script>
+    <%--<script src="https://cdn.bootcss.com/jsPlumb/1.7.6/jquery.jsPlumb.min.js"></script>--%>
+    <script src="https://cdn.bootcss.com/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <script src="https://cdn.bootcss.com/canvg/1.5/canvg.min.js"></script>
+    <style>
+        .layui-form-label{width:100px;}
+    </style>
+</head>
+<body>
+<div class="layui-form" id="node-info" style="display: none; padding: 25px"><!-- Modal -->
+    <div id="node-info-basic">
+        <div class="layui-form-item">
+            <label class="layui-form-label">节点名称</label>
+            <div class="layui-input-block">
+                <input type="text" id="node-name" content="node-attr" class="layui-input" data-group="editInput">
+            </div>
+        </div>
+        <div class="layui-form-item  layui-form-text">
+            <label class="layui-form-label">节点备注</label>
+            <div class="layui-input-block">
+                <textarea id="node-remarks" content="node-attr" class="layui-textarea" data-group="editInput"></textarea>
+            </div>
+        </div>
+    </div>
+    <div id="node-info-condition" content="node-attr-detail">
+        <div class="layui-form-item">
+            <label class="layui-form-label">节点条件</label>
+            <div class="layui-input-block">
+                <input type="text" id="node-condition" content="node-attr" class="layui-input" data-group="editInput">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">条件顺序</label>
+            <div class="layui-input-block">
+                <input type="number" id="node-order" content="node-attr" class="layui-input" data-group="editInput">
+            </div>
+        </div>
+    </div>
+    <div id="node-info-affair" content="node-attr-detail">
+        <div class="layui-form-item">
+            <label class="layui-form-label">事项名称</label>
+            <div class="layui-input-block">
+                <input type="text" id="node-affairName" content="node-attr" readonly class="layui-input" onclick="selectImplementList()">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">事项编码</label>
+            <div class="layui-input-block">
+                <input type="text" id="node-affairId" content="node-attr" readonly class="layui-input" onclick="selectImplementList()">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-sm layui-btn-primary" onclick="closeDomLayer('#node-info')">关闭</button>
+            <%--<button class="layui-btn layui-btn-sm layui-btn-danger" data-group="editButton" onclick="delNode(currNodeId);closeDomLayer('#node-info');">删除</button>--%>
+            <button class="layui-btn layui-btn-sm layui-btn-warm" data-group="editButton" onclick="setSpecial(currNodeId, 'start', true);closeDomLayer('#node-info');">设为开始</button>
+            <button class="layui-btn layui-btn-sm" data-group="editButton" onclick="setSpecial(currNodeId, 'end', true);closeDomLayer('#node-info');">设为结束</button>
+            <button class="layui-btn layui-btn-sm layui-btn-normal" data-group="editButton" onclick="saveNodeData(currNodeId);closeDomLayer('#node-info');">保存</button>
+        </div>
+    </div>
+</div>
+
+<div id="edge-info" class="layui-form" style="display: none; padding: 25px"><!-- Modal -->
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-sm layui-btn-danger" data-group="editButton" onclick="delEdge(currEdgeId);closeDomLayer('#edge-info');">删除</button>
+        </div>
+    </div>
+</div>
+<%-->
+<div id="canvas" style="width: 100%; height: 1600px">
+</div>
+--%
+<%--流程图编辑器页面——by lls--%>
+<%--&lt;%&ndash;--%>
+<div class="flow">
+    <div class="flow-header">
+        <div class="flow-title" id="flow-title">套餐模型</div>
+        <div>
+            <button class="btn btn-default" onclick="saveImg();">保存为图片</button>
+            <button id="update" class="btn btn-default" onclick="reformGraph()">模型重排</button>
+            <button id="save" class="btn btn-default" onclick="saveModel()">保存模型</button>
+        </div>
+    </div>
+    <div class="flow-body">
+        <div class="flow-menu">
+            <h5>节点类型列表</h5>
+            <div id="flow-btns" class="flow-btns">
+                <div class="flow-btn btn-flow" data-type="affair">事项节点</div>
+                <div class="flow-btn btn-judge" data-type="condition">条件节点</div>
+                <div class="flow-btn btn-node" data-type="exclusive">
+                    <img src="" alt="">
+                    <span>单选分路</span>
+                </div>
+                <div class="flow-btn btn-node" data-type="parallel">
+                    <img src="" alt="">
+                    <span>多选分路</span>
+                </div>
+                <div class="flow-btn btn-node" data-type="conjunctive">
+                    <img src="" alt="">
+                    <span>合取合路</span>
+                </div>
+                <div class="flow-btn btn-node" data-type="disjunctive">
+                    <img src="" alt="">
+                    <span>析取合路</span>
+                </div>
+            </div>
+        </div>
+        <div  class="flow-container" >
+            <div class="flow-main" id="canvas">
+
+            </div>
+        </div>
+    </div>
+</div>
+<%--&ndash;%&gt;--%>
+<div id="tipArea" style="width: 200px; position: fixed; bottom: 200px; right: 0px; color: #999999">
+    <div>欢迎使用一窗套餐编辑器</div>
+    <div id="tipContent"></div>
+</div>
+<%--
+<script>
+    var editable=${editable};
+
+    $(document).ready(function () {
+        if(!editable){
+            $('button[data-group="editButton"]').hide();
+            $('[data-group="editInput"]').attr('readonly', 'readonly');
+        }
+    })
+
+    //作图区域初始化，定义部分作图变量
+    var nodeSymbolSize=40;//节点大小
+    var labelLineWidth=6;
+    var canvas=document.getElementById('canvas');
+    var canvasApp=echarts.init(canvas);
+    var symbolMap={
+        "condition":"circle",
+        "affair":"rect",
+        "exclusive":"triangle",
+        "parallel":"roundRect",
+        "conjunctive":"diamond",
+        "disjunctive":"path://M90,46H30C17.9,46,8,36.1,8,24S17.9,2,30,2h60c12.1,0,22,9.9,22,22S102.1,46,90,46z M30,6c-9.9,0-18,8.1-18,18 c0,9.9,8.1,18,18,18h60c9.9,0,18-8.1,18-18c0-9.9-8.1-18-18-18H30z M30,35c-6.1,0-11-4.9-11-11s4.9-11,11-11s11,4.9,11,11S36.1,35,30,35z M30,15c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S35,15,30,15z M30,28c-2.2,0-4-1.8-4-4c0-2.2,1.8-4,4-4s4,1.8,4,4C34,26.2,32.2,28,30,28z M30,22l0,2c0,0,0,0,0,0L30,22z"
+    };
+
+    var dragPointColor='rgba(200,200,200,0.1)';
+    var dragPointColorWaiting='rgba(100,100,100,0.7)';
+    var canvasTitleInit='套餐模型';//初始标题
+    var canvasTitle=canvasTitleInit;
+
+    var currNodeId='';
+    var currEdgeId=['', ''];
+    var categories=[{
+        name:'图例'
+    },{
+        name:'开始',
+        type:'start'
+    }, {
+        name:'普通',
+        type:'normal'
+    }, {
+        name:'结束',
+        type:'end'
+    }];
+
+    //数据初始化--------------------------------------------------------------------------------------------------------
+    var legendNodes=[
+        {"name":"事项节点", "type":"affair", "left":"0", "top":"100"},
+        {"name":"单选分路", "type":"exclusive", "left":"0", "top":"200"},
+        {"name":"多选分路", "type":"parallel", "left":"0", "top":"300"},
+        {"name":"条件节点", "type":"condition", "left":"0", "top":"400"},
+        {"name":"合取合路", "type":"conjunctive", "left":"0", "top":"500"},
+        {"name":"析取合路", "type":"disjunctive", "left":"0", "top":"600"}
+    ];
+
+    function tip(message) {
+        $('#tipContent').text(message);
+    }
+
+    var rawNodes=${vertex};
+    var rawEdges=${edges};
+    var specialNodes=${specialNode};
+
+    function reformRawNodes() {
+        for(var i=0;i<rawNodes.length;i++){
+            var cord=reform([rawNodes[i].left,rawNodes[i].top]);
+            rawNodes[i].left=cord[0];
+            rawNodes[i].top=cord[1];
+        }
+    }
+    reformRawNodes();
+
+    var nodeCounter=1;
+    var specialNodeMap={};
+
+    function replaceId() {
+        var nodeIdMap={};
+        for(var i=0;i<rawNodes.length;i++){
+            nodeIdMap[rawNodes[i].id]=nodeCounter;
+            rawNodes[i].id=nodeCounter+'';
+            nodeCounter++;
+        }
+        for(var i=0;i<rawEdges.length;i++){
+            rawEdges[i].pageSourceId=nodeIdMap[rawEdges[i].pageSourceId]+'';
+            rawEdges[i].pageTargetId=nodeIdMap[rawEdges[i].pageTargetId]+'';
+        }
+        for(var i=0;i<specialNodes.length;i++){
+            for(var j=0;j<specialNodes[i].nodes.length;j++){
+                specialNodeMap[nodeIdMap[specialNodes[i].nodes[j]]]=specialNodes[i].type;
+            }
+        }
+    }
+    replaceId();//替换id，方便增减
+
+    function reform(value) {
+        var offset=[2*nodeSymbolSize, nodeSymbolSize];
+        var space=[4*nodeSymbolSize, 2*nodeSymbolSize];
+        for(var i=0;i<2;i++){
+            value[i]=Math.round((value[i]-offset[i])/space[i])*space[i]+offset[i];
+        }
+        return value;
+    }
+
+    function genNode() {//将套餐节点数据改为图表数据
+        var modelNodes = rawNodes.map(function (t) {
+            var ret=t;
+            ret.value=[t.left, t.top];
+            ret.symbol=symbolMap[t.type];
+            var specialType=specialNodeMap[t.id];
+            if(specialType==null){
+                specialType='normal';
+            }
+            for(var i=0;i<categories.length;i++){
+                if(categories[i].type==specialType){
+                    ret.category=i;
+                }
+            }
+            return ret;
+        })
+        var legends = legendNodes.map(function (t) {
+            var ret=t;
+            ret.value=[t.left, t.top];
+            ret.symbol=symbolMap[t.type];
+            ret.sec='legend';//图例
+            ret.id=ret.name;
+            ret.category=0;
+            return ret;
+        })
+        var allNodes=modelNodes.concat(legends);
+        return allNodes;
+        //return modelNodes;
+    }
+    function genEdge() {
+        return rawEdges.map(function (t) {
+            return {
+                source:t.pageSourceId,
+                target:t.pageTargetId
+            }
+        })
+    }
+
+    //定义拖拽点--------------------------------------------------------------------------------------------------------
+    var dragPoints=[];
+    function addDragPoint() {
+        dragPoints=[];
+        dragPoints=echarts.util.map(rawNodes, function (item, dataIndex) {
+            if(!editable){//只读模式，没有锚点
+                return;
+            }
+            var value=[item.left, item.top];
+            return {
+                type: 'circle',
+                id:dataIndex+'',//指定id
+                position: canvasApp.convertToPixel({seriesId:'model'}, value),
+                shape: {//中间
+                    cx: 0,
+                    cy:0,
+                    r: nodeSymbolSize*0.75
+                },
+                style:{
+                    fill:dragPointColor
+                },
+                invisible: false,
+                draggable: true,
+                ondrag: echarts.util.curry(onPointDragging, dataIndex),//拖拽方法
+                //ondrop: echarts.util.curry(onPointDropping, dataIndex),//放置方法
+                oncontextmenu: echarts.util.curry(nodeMenuByIndex, dataIndex),//编辑节点属性
+                ondblclick: echarts.util.curry(addEdge, dataIndex),//增加边，双击
+                z: 100
+            };
+        })
+        canvasApp.setOption({//拖拽点
+            graphic:dragPoints
+        })
+    }
+    function onPointDragging(dataIndex, dx, dy) {//定义拖拽方法
+        var cord = canvasApp.convertFromPixel({seriesId:'model'}, this.position);
+        if(cord==null){
+            return
+        }
+        rawNodes[dataIndex].left=cord[0];
+        rawNodes[dataIndex].top=cord[1];
+        canvasApp.setOption({
+            series: [{
+                id: 'model',
+                data: genNode(),
+            }]
+        });
+    }
+    function onPointDropping(dataIndex) {
+        console.log("dropping "+dataIndex);
+        var node=rawNodes[dataIndex];
+        var newCord=reform([node.left, node.top]);
+        node.left=newCord[0];
+        node.top=newCord[1];
+        paint();
+    }
+    //增加边的方法------------------------------------------------------------------------------------------------------
+    var sourceIndex=null;
+    function cancelAddEdge() {
+        sourceIndex=null;
+        canvasApp.setOption({
+            graphic:dragPoints.map(function (t) {//增加改变拖拽点样式
+                return { id:t.id, style:{ fill:dragPointColor }};
+            })
+        })
+    }
+    function addEdge(dataIndex) {
+        cancelAddNode();//退出节点添加状态
+        if(sourceIndex==null){
+            sourceIndex=dataIndex;
+            canvasApp.setOption({
+                graphic:dragPoints.map(function (t) {//增加改变拖拽点样式，连线的候选
+                    var color= (t.id==sourceIndex+'')?dragPointColor:dragPointColorWaiting;
+                    return { id:t.id, style:{ fill:color }};
+                })
+            })
+        }
+        else {
+            var targetIndex=dataIndex;
+            if(targetIndex==sourceIndex){//取消连线状态
+                cancelAddEdge();
+            }
+            for(var i=0; i<rawEdges.length;i++){
+                if(rawEdges[i].pageSourceId==rawNodes[sourceIndex].id&&rawEdges[i].pageTargetId==rawNodes[targetIndex].id){
+                    alert("这条边已存在");
+                    return;
+                }
+            }
+            rawEdges.push({
+                pageSourceId:rawNodes[sourceIndex].id,
+                pageTargetId:rawNodes[targetIndex].id
+            })
+            sourceIndex=null;
+            paint();
+        }
+    }
+    //图像渲染----------------------------------------------------------------------------------------------------------
+    var option = {
+        grid:{ show : false },
+        xAxis : [{
+            show : false,
+            min: 0,
+            max: 1500
+        }],
+        yAxis : [{
+            show : false,
+            min: 0,
+            max: 1600,
+            inverse:true
+        }],
+        title: {
+            text: canvasTitle,
+            top: 'top',
+            left: 'left'
+        },
+        toolbox: {
+            padding:30,
+            show : true,
+            feature : {
+                saveAsImage : {show: true},
+                //敲黑板，重点！！！
+                myReform:{
+                    show:true,
+                    title:'模型重排',
+                    icon:'path://M525.4 721.2H330.9c-9 0-18.5-7.7-18.5-18.1V311c0-9 9.3-18.1 18.5-18.1h336.6c9.3 0 18.5 9.1 18.5 18.1v232.7c0 6 8.8 12.1 15 12.1 6.2 0 15-6 15-12.1V311c0-25.6-25.3-48.9-50.1-48.9h-335c-26.2 0-50.1 23.3-50.1 48.9v389.1c0 36.3 20 51.5 50.1 51.5h197.6c6.2 0 9.3-7.5 9.3-15.1 0-6-6.2-15.3-12.4-15.3zM378.8 580.6c-6.2 0-12.3 8.6-12.3 14.6s6.2 14.6 12.3 14.6h141.4c6.2 0 12.3-5.8 12.3-13.4 0.3-9.5-6.2-15.9-12.3-15.9H378.8z m251.6-91.2c0-6-6.2-14.6-12.3-14.6H375.7c-6.2 0-12.4 8.6-12.4 14.6s6.2 14.6 12.4 14.6h240.8c6.2 0.1 13.9-8.5 13.9-14.6z m-9.2-120.5H378.8c-6.2 0-12.3 8.6-12.3 14.6s6.2 14.6 12.3 14.6h240.8c7.7 0 13.9-8.6 13.9-14.6s-6.2-14.6-12.3-14.6z m119.4 376.6L709 714.1c9.2-12 14.6-27 14.6-43.2 0-39.4-32.1-71.4-71.8-71.4-39.7 0-71.8 32-71.8 71.4s32.1 71.4 71.8 71.4c16.3 0 31.3-5.4 43.4-14.5l31.6 31.5c3.8 3.8 10 3.8 13.8 0 3.8-3.8 3.8-10 0-13.8z m-88.8-23.6c-28.3 0-51.3-22.8-51.3-51s23-51 51.3-51c28.3 0 51.3 22.8 51.3 51s-23 51-51.3 51z',
+                    onclick:function () {
+                        reformGraph();
+                    }
+                },
+                mySave:{//自定义按钮 danielinbiti,这里增加，selfbuttons可以随便取名字
+                    show:true,//是否显示
+                    title:'保存模型', //鼠标移动上去显示的文字
+                    icon:'path://M525.4 721.2H330.9c-9 0-18.5-7.7-18.5-18.1V311c0-9 9.3-18.1 18.5-18.1h336.6c9.3 0 18.5 9.1 18.5 18.1v232.7c0 6 8.8 12.1 15 12.1 6.2 0 15-6 15-12.1V311c0-25.6-25.3-48.9-50.1-48.9h-335c-26.2 0-50.1 23.3-50.1 48.9v389.1c0 36.3 20 51.5 50.1 51.5h197.6c6.2 0 9.3-7.5 9.3-15.1 0-6-6.2-15.3-12.4-15.3zM378.8 580.6c-6.2 0-12.3 8.6-12.3 14.6s6.2 14.6 12.3 14.6h141.4c6.2 0 12.3-5.8 12.3-13.4 0.3-9.5-6.2-15.9-12.3-15.9H378.8z m251.6-91.2c0-6-6.2-14.6-12.3-14.6H375.7c-6.2 0-12.4 8.6-12.4 14.6s6.2 14.6 12.4 14.6h240.8c6.2 0.1 13.9-8.5 13.9-14.6z m-9.2-120.5H378.8c-6.2 0-12.3 8.6-12.3 14.6s6.2 14.6 12.3 14.6h240.8c7.7 0 13.9-8.6 13.9-14.6s-6.2-14.6-12.3-14.6z m119.4 376.6L709 714.1c9.2-12 14.6-27 14.6-43.2 0-39.4-32.1-71.4-71.8-71.4-39.7 0-71.8 32-71.8 71.4s32.1 71.4 71.8 71.4c16.3 0 31.3-5.4 43.4-14.5l31.6 31.5c3.8 3.8 10 3.8 13.8 0 3.8-3.8 3.8-10 0-13.8z m-88.8-23.6c-28.3 0-51.3-22.8-51.3-51s23-51 51.3-51c28.3 0 51.3 22.8 51.3 51s-23 51-51.3 51z', //图标
+                    onclick:function() {
+                        saveModel();
+                    }
+                }
+            }
+        },
+        legends:{
+            data:['model']
+        },
+        tooltip: {
+            show:true
+        },
+        series: [{
+            name:'model',
+            id: 'model',
+            type: 'graph',
+            layout: 'none',
+            coordinateSystem: 'cartesian2d',
+            categories: categories,
+            roam: true,
+            focusNodeAdjacency: true,
+            edgeSymbol: ['none', 'arrow'],
+            edgeSymbolSize: [1,10],
+            symbolSize: [2.5*nodeSymbolSize, nodeSymbolSize],
+            label: {
+                normal: {
+                    show: true,
+                    position:'inside',
+                    formatter:function (params) {
+                        var name=params.data.name;
+                        if(name==null){
+                            name='';
+                        }
+                        var ret='';
+                        for(var i=0;i<name.length;i++){
+                            ret=ret+name[i];
+                            if((i+1)%labelLineWidth==0){
+                                ret=ret+'\n';
+                            }
+                        }
+                        return ret;
+                    }
+                }
+            },
+            lineStyle:{
+                color:'target',
+                width:3
+            },
+            tooltip:{
+
+            }
+        }],
+    }
+    canvasApp.setOption(option);
+    paint();
+    canvasApp.on('click', function (params) {
+        leftClickMenu(params);
+    })
+    canvasApp.on('contextmenu', function (params) {
+        rightClickMenu(params)
+    })
+
+    function refreshData() {
+        canvasApp.setOption({
+            series: [{
+                id: 'model',
+                data: genNode(),
+                links: genEdge()
+            }]
+        });
+    }
+    function refreshGraph() {
+        refreshData();
+        addDragPoint();
+    }
+    function paint() {
+        canvasApp=echarts.init(canvas);
+        option.series[0].data=genNode();
+        option.series[0].links=genEdge();
+        canvasApp.setOption(option, true);
+        addDragPoint();
+        canvasApp.setOption({title:{text: canvasTitle}})
+    }
+    //左键菜单----------------------------------------------------------------------------------------------------------
+    function nodeMenu(nodeType) {
+        //console.log('open node menu');
+        layer.open({
+            type: 1,
+            content: $('#node-info'),
+            area: '700px',
+            end: function () {
+                closeDomLayer('#node-info');
+            },
+            offset:'100px'
+        });
+        $('div[content="node-attr-detail"]').hide();
+        $('#node-info-' + nodeType).show();//确定展示区域
+
+        var currNode = {};
+        for (var i = 0; i < rawNodes.length; i++) {
+            if (rawNodes[i].id == currNodeId) {
+                currNode = rawNodes[i];
+                break;
+            }
+        }
+        $('[content="node-attr"]').each(function () {
+            var attrName = $(this).attr('id');
+            try {
+                attrName = attrName.split('-')[1];
+                var attrVal = currNode[attrName];
+                if (attrVal!==null&&attrVal!==undefined) {
+                    $(this).val(attrVal);
+                }else {
+                    $(this).val('');
+                }
+            } catch (err) {
+            }
+        })
+    }
+    function nodeMenuByIndex(dataIndex) {
+        var data=rawNodes[dataIndex];
+        currNodeId=data.id;
+        var nodeType=data.type;
+        nodeMenu(nodeType);
+    }
+    function leftClickMenu(params) {
+        //console.log('leftClickMenu');
+        if(params.dataType=='node'){//节点面板
+            if(params.data.sec==null) {
+                return;
+            }
+            if(params.data.sec=='legend'){
+                //console.log('click on legend');
+                var currName=params.data.name;
+                currType=params.data.type;
+                tip("已选择"+currName+'，双击画布添加节点');
+            }
+        }
+        if(params.dataType=='edge'){
+            currEdgeId=[params.data.source, params.data.target];
+            layer.open({
+                type: 1,
+                content: $('#edge-info'), //这里content是一个普通的String
+                area:'700px',
+                end:function(){ closeDomLayer('#edge-info'); },
+                offset:'100px'
+            });
+        }
+    }
+    function closeDomLayer(selector) {
+        layer.closeAll();
+        $(selector).hide();
+    }
+
+    //右键菜单----------------------------------------------------------------------------------------------------------
+    function clearStatus() {
+        cancelAddEdge();
+        cancelAddNode();
+    }
+    var currType=null;
+    var currTypeFlag=false;
+    document.oncontextmenu=function () {
+        return false;
+    }
+    function rightClickMenu(params){
+        if(params.dataType=='node') {//节点面板
+            if (params.data.sec == null) {
+                currNodeId=params.data.id;
+                var nodeType=params.data.type;
+                nodeMenu(nodeType);
+            }
+        }
+        clearStatus();
+    }
+
+    //双击菜单----------------------------------------------------------------------------------------------------------
+    function cancelAddNode(){
+        currType=null;
+        currTypeFlag=false;
+        tip("");
+    }
+    canvas.ondblclick = function (e) { //添加节点方法
+        if(!editable){
+            return;
+        }
+        if(currType!=null) {
+            var position = [e.x, e.y];
+            var cord = canvasApp.convertFromPixel({seriesId: 'model'}, position);
+            //cord=reform(cord);
+            var node = {
+                left: cord[0]+'',
+                top: cord[1]+'',
+                width: 2*nodeSymbolSize+'',
+                height: nodeSymbolSize+'',
+                type: currType,
+                id: nodeCounter + ''
+            };
+            nodeCounter++;
+            rawNodes.push(node);
+            paint();
+        }
+    }
+
+    //节点操作----------------------------------------------------------------------------------------------------------
+    function saveNodeData(nodeId){//保存修改
+        var index=-1;
+        for(var i=0;i<rawNodes.length;i++){
+            if(rawNodes[i].id==nodeId){
+                index=i;
+                break;
+            }
+        }
+        var section=['basic', rawNodes[index].type];
+        for(var i=0;i<section.length;i++){
+            $('#node-info-'+section[i]+' [content="node-attr"]').each(function () {
+                var attrName=$(this).attr('id');
+                try{
+                    attrName=attrName.split('-')[1];
+                    var attrVal=$(this).val();
+                    rawNodes[index][attrName]=attrVal;
+                }catch (err){}
+            })
+        }
+        paint();
+    }
+    function delNode(nodeId) {//删除
+        rawNodes=rawNodes.filter(function (t) {
+            return t.id!=nodeId;
+        });
+        rawEdges=rawEdges.filter(function (t) {
+            return t.pageTargetId!=nodeId&&t.pageSourceId!=nodeId;
+        });
+        paint();
+    }
+    function setSpecial(nodeId, type, isUnique) {//设为特殊节点
+        if(isUnique) {
+            for (var node in specialNodeMap) {
+                if (specialNodeMap[node] == type){
+                    specialNodeMap[node]=null;
+                }
+            }
+        }
+        specialNodeMap[nodeId]=type;
+        paint();
+    }
+
+    //边操作------------------------------------------------------------------------------------------------------------
+    function delEdge(edgeId) {
+        rawEdges=rawEdges.filter(function (t) {
+            return t.pageSourceId!=edgeId[0]||t.pageTargetId!=edgeId[1];
+        });
+        paint();
+    }
+
+    function selectImplementList() {
+        if(!editable){
+            return;
+        }
+        closeDomLayer('#node-info');//关闭弹出层
+        $.jBox("iframe:${ctx}/implementList/search/select", {
+            title:"选择事项",
+            width:980,
+            height:520,
+            buttons:('关闭',true)
+        });
+    }
+    function getImplementListJson(json) {
+        var implement = JSON.parse(json);
+        //$("#node-affairName").val(implement.itemName);
+        //$("#node-affairId").val(implement.implementCode);
+        var type='';
+        for(var i=0;i<rawNodes.length;i++){
+            if(rawNodes[i].id==currNodeId){
+                rawNodes[i].affairName=implement.itemName;
+                rawNodes[i].affairId=implement.implementCode;
+                type=rawNodes[i].type;
+                //console.log(rawNodes[i]);
+                break;
+            }
+        }
+        //console.log(type);
+        nodeMenu(type);//重新展示节点属性
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    function reformGraph() {
+        reformRawNodes();
+        paint();
+    }
+    function saveModel() {
+        if(!editable){
+            alert('非编辑模式，不可提交');
+            return
+        }
+        reformGraph();
+        if(!confirm("确定提交？")){
+            return;
+        }
+
+        var specialNodes=[];
+        var reversedSpecialNodes={};
+        for(var k in specialNodeMap){
+            var type=specialNodeMap[k];
+            if(reversedSpecialNodes[type]==null){
+                reversedSpecialNodes[type]=[];
+            }
+            reversedSpecialNodes[type].push(k);
+        }
+        for(var k in reversedSpecialNodes){
+            specialNodes.push({
+                type:k,
+                nodes:reversedSpecialNodes[k]
+            })
+        }
+        var retData={};
+        //console.log(retData);
+        $.post("${ctx}/comboModel/addModel", {
+                vertex: JSON.stringify(rawNodes),
+                edges: JSON.stringify(rawEdges),
+                specialNode: JSON.stringify(specialNodes),
+                async:false
+            },
+            function(data){
+                if(!data || data=="fail"){
+                    parent.alert("保存失败");
+                }
+                else{
+                    window.opener.getComboModelId(data);
+                    window.close();
+                }
+            });
+    }
+</script>
+--%>
+<%--modify by lls 2019-06-03--%>
+<%--&lt;%&ndash;--%>
+<script>
+    var editable=${editable};
+    // 页面初始化--------------------------------------------------------------------------------------------------------
+    $(document).ready(function () {
+        if(!editable){
+            $('button[data-group="editButton"]').hide();
+            $('[data-group="editInput"]').attr('readonly', 'readonly');
+        }
+        //为主体区域添加背景网格
+        $('.flow-main').css("backgroundImage","url('${ctxStatic}/flow-designer/img/bg1.png')");
+        //为按钮添加图标
+        var nodeBtns = $('#flow-btns .btn-node');
+        for(var i=0;i<nodeBtns.length;i++){
+            var currentNodeBtn = nodeBtns.eq(i);
+            var type = currentNodeBtn.data('type');
+            var imageNme = type + 'In';
+            currentNodeBtn.children('img').attr('src','${ctxStatic}/flow-designer/img/'+ imageNme +'.svg')
+        }
+    })
+
+    // 定义流程图样式----------------------------------------------------------------------------------------------------
+    // 基本连接线样式
+    var connectorPaintStyle = {
+        lineWidth: 2,
+        strokeStyle: "#000000",
+        joinstyle: "round",
+        outlineColor: "white",
+        outlineWidth: 1
+    };
+    // 鼠标悬浮在连接线上的样式
+    var connectorHoverStyle = {
+        lineWidth: 2,
+        strokeStyle: "#cccccc",
+        outlineWidth: 1,
+        outlineColor: "white"
+    };
+    // 端点样式
+    var endpointStyle = {
+        endpoint: ["Dot", { radius: 8 }],  //端点的形状
+        connectorStyle: connectorPaintStyle,//连接线的颜色，大小样式
+        // connectorHoverStyle: connectorHoverStyle,
+        paintStyle: {
+            strokeStyle: "#000000",
+            fillStyle: "transparent",
+            radius: 2,
+            lineWidth: 1
+        },        //端点的颜色样式
+        // anchor: dynamicAnchors,
+        isSource: true,    //是否可以拖动（作为连线起点）
+        connector: ["Flowchart", { stub: [20, 30], gap: 5, cornerRadius: 3, alwaysRespectStubs: true }],  //连接线的样式种类有[Bezier],[Flowchart],[StateMachine ],[Straight ]
+        isTarget: true,    //是否可以放置（连线终点）
+        maxConnections: -1,    // 设置连接点最多可以连接几条线
+        connectorOverlays: [["Arrow", { width: 10, length: 10, location: 1 }]]
+    };
+
+    // 数据初始化--------------------------------------------------------------------------------------------------------
+    var rawNodes=${vertex};   //节点数据
+    var rawEdges=${edges};    //连线数据
+    var specialNodes=${specialNode};
+    var specialNodeMap={};
+    var nodeCounter=1;      //定义节点Id
+
+    replaceId();
+
+    //替换id，方便增减
+    function replaceId() {
+        var nodeIdMap={};
+        for(var i=0;i<rawNodes.length;i++){
+            nodeIdMap[rawNodes[i].id]=nodeCounter;
+            rawNodes[i].id=nodeCounter+'';
+            nodeCounter++;
+        }
+        for(var i=0;i<rawEdges.length;i++){
+            rawEdges[i].pageSourceId=nodeIdMap[rawEdges[i].pageSourceId]+'';
+            rawEdges[i].pageTargetId=nodeIdMap[rawEdges[i].pageTargetId]+'';
+        }
+        for(var i=0;i<specialNodes.length;i++){
+            for(var j=0;j<specialNodes[i].nodes.length;j++){
+                specialNodeMap[nodeIdMap[specialNodes[i].nodes[j]]]=specialNodes[i].type;
+            }
+        }
+    }
+
+    // 节点拖拽（添加节点）-----------------------------------------------------------------------------------------------
+    var container = $('#canvas');
+    $("#flow-btns").children().draggable({
+        helper: "clone",
+        scope: "ss",
+    });
+    container.droppable({
+        scope: "ss",
+        drop: function (event, ui) {
+            if(!editable){
+                return;
+            }
+            var left = parseInt(ui.offset.left - $(this).offset().left);
+            var top = parseInt(ui.offset.top - $(this).offset().top);
+            var type = ui.helper.context.dataset.type;
+            nodeCounter++;
+            var id = nodeCounter + '';
+            var dom = $('<div class="node-common" id="' + id + '" data-type="'+type+'"><span class="node-text"></span></div>')
+            $(this).append(dom);
+            dom.css("left", left).css("top", top);
+
+            // 根据不同的类型，在画布中添加对应的节点
+            switch (type) {
+                case "affair":
+                    dom.addClass('node-flow');
+                    break;
+                case "condition":
+                    dom.addClass('node-judge');
+                    break;
+                case 'exclusive':
+                case 'parallel':
+                case 'conjunctive':
+                case 'disjunctive':
+                    dom.addClass('node-node');
+                    dom.css("paddingLeft", '40px');
+                    var imgDom = $('<img src="${ctxStatic}/flow-designer/img/'+type+'In.svg"/>');
+                    dom.append(imgDom);
+                    break;
+           }
+            jsPlumb.ready(function(){
+                jsPlumb.addEndpoint(id, { anchors: "TopCenter" }, endpointStyle);
+                jsPlumb.addEndpoint(id, { anchors: "RightMiddle" }, endpointStyle);
+                jsPlumb.addEndpoint(id, { anchors: "BottomCenter" }, endpointStyle);
+                jsPlumb.addEndpoint(id, { anchors: "LeftMiddle" }, endpointStyle);
+                jsPlumb.draggable(id);
+            })
+           dom.draggable({ containment: "parent"});
+           nodeClick(id);
+           //添加数据
+           var nodeInfo = {
+               id:id,
+               type:type,
+               width:dom.width(),
+               height:dom.height(),
+               left:left,
+               top:top
+           }
+           rawNodes.push(nodeInfo);
+        }
+    });
+
+    // 节点事件（单击获取焦点可删除，双击可以修改内容）----------------------------------------------------------------------
+    var nodeTimes = null;    // 区分节点的单双击事件
+    var currNodeId,currNodeType;
+    function nodeClick(id){
+        var currentDom =  $('#'+id);
+        var nodeId = id;
+        // 单击选中，可删除
+        currentDom.click(function(){
+            clearTimeout(nodeTimes);
+            //执行延时
+            nodeTimes = setTimeout(function(){
+                container.children('.node-common').removeClass('node-focus');
+                currentDom.addClass('node-focus');
+                var input = $("<input type='text' class='hide-input'/>");
+                setTimeout(function(){
+                    input.focus();
+                },50)
+                currentDom.append(input);
+                currentDom.keydown(function (event) {
+                    event=event||window.event;
+                    if(event.keyCode==8 || event.keyCode==46){  //8--backspace;46--delete
+                        currentDom.remove();
+                        jsPlumb.removeAllEndpoints(id);
+                        //删除数据
+                        rawNodes=rawNodes.filter(function (t) {
+                            return t.id != nodeId;
+                        });
+                        return false;
+                    }
+                });
+            },300);
+        })
+        // 双击打开弹框，编辑节点属性
+        currentDom.dblclick(function () {
+            // 取消上次延时未执行的方法
+            clearTimeout(nodeTimes );
+            currNodeId = nodeId;
+            currNodeType = currentDom.data('type');
+            nodeMenu(currNodeType);
+        });
+        // 拖拽改变大小
+        currentDom.resizable({
+            autoHide: true ,
+            minHeight: 36,
+            minWidth:150,
+            containment: "parent",
+            resize: function (event, ui) {
+                jsPlumb.repaint(ui.helper)
+                jsPlumb.repaintEverything()
+            }
+        })
+    }
+    //打开节点编辑弹框
+    function nodeMenu(nodeType) {
+        layer.open({
+            type: 1,
+            content: $('#node-info'),
+            area: '700px',
+            end: function () {
+                closeDomLayer('#node-info');
+            },
+            offset:'100px'
+        });
+        $('div[content="node-attr-detail"]').hide();
+        $('#node-info-' + nodeType).show();//确定展示区域
+
+        var currNode = {};
+        for (var i = 0; i < rawNodes.length; i++) {
+            if (rawNodes[i].id == currNodeId) {
+                currNode = rawNodes[i];
+                break;
+            }
+        }
+        $('[content="node-attr"]').each(function () {
+            var attrName = $(this).attr('id');
+            try {
+                attrName = attrName.split('-')[1];
+                var attrVal = currNode[attrName];
+                if (attrVal!==null&&attrVal!==undefined) {
+                    $(this).val(attrVal);
+                }else {
+                    $(this).val('');
+                }
+            } catch (err) {
+            }
+        })
+    }
+    function closeDomLayer(selector) {
+        layer.closeAll();
+        $(selector).hide();
+    }
+    // 节点操作----------------------------------------------------------------------------------------------------------
+    //保存节点编辑
+    function saveNodeData(nodeId){
+        var index=-1;
+        for(var i=0;i<rawNodes.length;i++){
+            if(rawNodes[i].id==nodeId){
+                index=i;
+                break;
+            }
+        }
+        var section=['basic', rawNodes[index].type];
+        for(var i=0;i<section.length;i++){
+            $('#node-info-'+section[i]+' [content="node-attr"]').each(function () {
+                var attrName=$(this).attr('id');
+                try{
+                    attrName=attrName.split('-')[1];
+                    var attrVal=$(this).val();
+                    rawNodes[index][attrName]=attrVal;
+                }catch (err){}
+            })
+        }
+        $('#' + nodeId).children('.node-text').html(rawNodes[index].name);
+        jsPlumb.repaintEverything();
+    }
+    //设为特殊节点
+    function setSpecial(nodeId, type, isUnique) {
+        if(isUnique) {
+            for (var node in specialNodeMap) {
+                if (specialNodeMap[node] == type){
+                    specialNodeMap[node]=null;
+                }
+            }
+        }
+        specialNodeMap[nodeId]=type;
+    }
+    //
+    var implementLayer;
+    function selectImplementList() {
+        if(!editable){
+            return;
+        }
+        // closeDomLayer('#node-info');//关闭弹出层
+        <%--$.jBox("iframe:${ctx}/implementList/search/select", {--%>
+        //     title:"选择事项",
+        //     width:980,
+        //     height:520,
+        //     buttons:('关闭',true)
+        // });
+        implementLayer = layer.open({
+            title:'选择事项',
+            type:2,
+            content:"${ctx}/implementList/search/select",
+            area: ['900px', '400px']
+        })
+    }
+    function getImplementListJson(json) {
+        var implement = JSON.parse(json);
+        //$("#node-affairName").val(implement.itemName);
+        //$("#node-affairId").val(implement.implementCode);
+        var type='';
+        for(var i=0;i<rawNodes.length;i++){
+            if(rawNodes[i].id==currNodeId){
+                rawNodes[i].affairName=implement.itemName;
+                rawNodes[i].affairId=implement.implementCode;
+                $('#node-affairName').val(implement.itemName);
+                $('#node-affairId').val(implement.implementCode)
+                break;
+            }
+        }
+        layer.close(implementLayer);
+    }
+
+    // 连接线事件（单击获取焦点可删除）------------------------------------------------------------------------------------
+    var lineTimes = null;
+    jsPlumb.bind("click", function (conn, originalEvent) {
+         if(!editable){
+             return false;
+         }
+        clearTimeout(lineTimes);
+        //执行延时
+        lineTimes = setTimeout(function(){
+            jsPlumb.repaintEverything();
+            var target = originalEvent.toElement;
+            var isOuter = target.getAttribute('class') ? true : false;
+            if(isOuter){
+                return false;
+            }
+            target.setAttribute('stroke','#409eff');
+            $(document).keydown(function(event){
+                event=event||window.event
+                if(event.keyCode==8 || event.keyCode==46){  //8--backspace;46--delete
+                    jsPlumb.detach(conn);
+                    return false;
+                }
+            });
+        })
+    });
+
+    // 点击空白区域 ------------------------------------------------------------------------------------
+    $(document).click(function(e){
+        $(document).off('keydown');
+        //如果有在编辑的节点，要完成赋值
+        var focusNode = $('.node-common.node-focus');
+        if(focusNode.length != 0){
+            var isHasInput = focusNode.children("input.flow-input").length == 0 ? false : true;
+            if(isHasInput){
+                focusNode.children('span').html(focusNode.children("input.flow-input").val());
+                focusNode.children("input.flow-input").remove();
+                focusNode.removeClass('node-focus');
+                jsPlumb.repaintEverything();
+            }
+        }
+        //节点，连接线取消选中状态
+        $('.node-common').removeClass('node-focus');
+        var paths = $('path');
+        if(paths.length != 0){
+            for(var i = 0; i<paths.length;i++ ){
+                var item = paths[i];
+                if(item.getAttribute('class')){
+                    continue;
+                }
+                item.setAttribute('stroke','#000000');
+                item.setAttribute('stroke-width','2')
+            }
+        }
+    });
+
+    //图像渲染----------------------------------------------------------------------------------------------------------
+    draw();
+    function draw(){
+        // 每次绘画之前，清空画布
+        container.html('');
+        drawNode(rawNodes);
+        drawLine(rawEdges);
+    }
+    function drawNode(data){
+        data.forEach(function(item,index){
+            var type = item.type;
+            var dom = $('<div class="node-common" id="' + item.id + '" data-type="'+type+'"><span class="node-text">'+ item.name +'</span></div>')
+
+            var left = alignment((parseFloat(item.left)),'left');
+            var top = alignment((parseFloat(item.top)),'top');
+            dom.css("left", left).css("top", top);
+            container.append(dom);
+
+            // 根据不同的类型，在画布中添加对应的节点
+            switch (type) {
+                case "affair":
+                    dom.addClass('node-flow');
+                    break;
+                case "condition":
+                    dom.addClass('node-judge');
+                    break;
+                case 'exclusive':
+                case 'parallel':
+                case 'conjunctive':
+                case 'disjunctive':
+                    dom.addClass('node-node');
+                    dom.css("paddingLeft", '40px');
+                    var imgDom = $('<img src="${ctxStatic}/flow-designer/img/'+ type +'In.svg"/>');
+                    dom.append(imgDom);
+                    break;
+            }
+            if(editable){
+                jsPlumb.ready(function(){
+                    jsPlumb.addEndpoint(item.id, { anchors: "TopCenter" }, endpointStyle);
+                    jsPlumb.addEndpoint(item.id, { anchors: "RightMiddle" }, endpointStyle);
+                    jsPlumb.addEndpoint(item.id, { anchors: "BottomCenter" }, endpointStyle);
+                    jsPlumb.addEndpoint(item.id, { anchors: "LeftMiddle" }, endpointStyle);
+                    jsPlumb.draggable(item.id);
+                    dom.draggable({ containment: "parent"});
+                    nodeClick(item.id);
+                })
+            }
+        })
+    }
+    function drawLine(data){
+        var options = {
+            anchor: ['BottomCenter', 'TopCenter'],
+            endpoint: ["Dot", { radius: 8 }],
+            connectorStyle: connectorPaintStyle,//连接线的颜色，大小样式
+            connectorHoverStyle: connectorHoverStyle,
+            paintStyle: { strokeStyle: '#000000',fillStyle: "transparent",radius: 2,lineWidth: 2},
+            connector: ["Flowchart", { stub: [10, 15], gap: 5, cornerRadius: 2, alwaysRespectStubs: true }],
+            overlays: [["Arrow", { width: 10, length: 10, location: 1 }]],
+            endpointStyle: { fillStyle: 'transparent', strokeStyle: "#000000", lineWidth: 1 ,radius: 2},
+            isSource: false,
+            isTarget: false
+        };
+        data.forEach(function(item,index){
+            jsPlumb.ready(function(){
+                jsPlumb.connect({
+                    source: item.pageSourceId,
+                    target: item.pageTargetId
+                },options)
+            })
+        })
+    }
+    function alignment(value,type){
+        var baseNum,newNum;
+        if('top' === type){
+            baseNum = 60;
+        }else{
+            baseNum = 180;
+        }
+        newNum = (Math.floor(value/baseNum))*baseNum;
+        return newNum;
+    }
+
+    //保存为图片---------------------------------------------------------------------------------------------------------
+    function saveImg(){
+        // 需要转为图片的dom
+        var targetDom = $("#canvas");
+        // 将当前页面DOM克隆
+        var copyDom = targetDom.clone(true);
+        // 将页面中的svg转换为canvas
+        copyDom.find('svg').each(function (index, node) {
+            var parentNode = node.parentNode;
+            var svg = node.outerHTML.trim();
+            var canvas = document.createElement('canvas');
+            canvg(canvas, svg, {
+                ignoreAnimation: false,
+                log: true
+            });
+            if (node.style.position) {
+                canvas.style.position += node.style.position;
+                canvas.style.left += node.style.left;
+                canvas.style.top += node.style.top;
+            }
+            parentNode.removeChild(node);
+            $(parentNode).prepend($(canvas));
+        });
+        // 页面原有dom隐藏，添加克隆dom
+        $('.flow-container').prepend(copyDom);
+        targetDom.hide();
+        // 新建canvas元素
+        var canvas2 = document.createElement("canvas");
+        var w = targetDom.width();
+        var h = targetDom.height();
+        //将canvas画布放大若干倍，然后盛放在较小的容器内，就显得不模糊了
+        canvas2.width = w*2;
+        canvas2.height = h*2;
+        canvas2.style.width = w + "px";
+        canvas2.style.height = h + "px";
+        //可以按照自己的需求，对context的参数修改,translate指的是偏移量
+        var context = canvas2.getContext("2d");
+        context.translate(0,0);//translate指的是偏移量
+        context.scale(2, 2);//scale指的是放大
+        html2canvas(copyDom, {
+            canvas: canvas2,
+            onrendered: function (canvas) {
+                //使用a 标签下载
+                var imgName = $('#flow-title').html();
+                var a = document.createElement('a');
+                a.setAttribute('href', canvas.toDataURL());
+                a.setAttribute('download', imgName + '.png');
+                a.click();
+                a.remove();
+                // 将clone页面删除
+                copyDom.remove();
+                targetDom.show();
+                // 保存图片后，连线会变粗。莫名其妙。
+                $('path').each(function(index,item){
+                    var width = item.getAttribute('stroke-width');
+                    if(width){
+                        item.setAttribute('stroke-width','2');
+                    }
+                })
+            }
+        });
+    }
+    //模型重排
+    function reformGraph() {
+        var modelNodes = rawNodes.map(function (t) {
+            var ret=t;
+            var id = t.id;
+            var currentDom = $('#'+id);
+            ret.width = currentDom.width();
+            ret.height = currentDom.height();
+            ret.left = alignment(currentDom.position().left,'left');
+            ret.top = alignment(currentDom.position().top,'top');
+            return ret;
+        });
+        rawNodes = modelNodes;
+        draw();
+    }
+    //保存模型
+    function saveModel() {
+        if(!editable){
+            alert('非编辑模式，不可提交');
+            return
+        }
+        // reformGraph();
+        if(!confirm("确定提交？")){
+            return;
+        }
+        //特殊节点
+        var specialNodes=[];
+        var reversedSpecialNodes={};
+        for(var k in specialNodeMap){
+            var type=specialNodeMap[k];
+            if(reversedSpecialNodes[type]==null){
+                reversedSpecialNodes[type]=[];
+            }
+            reversedSpecialNodes[type].push(k);
+        }
+        for(var k in reversedSpecialNodes){
+            specialNodes.push({
+                type:k,
+                nodes:reversedSpecialNodes[k]
+            })
+        }
+        //节点数据
+        rawNodes = rawNodes.map(function (t) {
+            var ret=t;
+            var id = t.id;
+            var currentDom = $('#'+id);
+            ret.width = currentDom.width();
+            ret.height = currentDom.height();
+            ret.left = currentDom.position().left;
+            ret.top = currentDom.position().top;
+            return ret;
+        });
+        //连线数据
+        var connects = [];
+        $.each(jsPlumb.getAllConnections(), function (idx, connection) {
+            connects.push({
+                pageSourceId: connection.sourceId,
+                pageTargetId: connection.targetId
+            });
+        });
+
+        $.post("${ctx}/comboModel/addModel", {
+                vertex: JSON.stringify(rawNodes),
+                edges: JSON.stringify(connects),
+                specialNode: JSON.stringify(specialNodes),
+                async:false
+            },
+            function(data){
+                if(!data || data=="fail"){
+                    parent.alert("保存失败");
+                }
+                else{
+                    window.opener.getComboModelId(data);
+                    window.close();
+                }
+            });
+    }
+
+</script>
+<%--&ndash;%&gt;--%>
+</body>
+</html>
