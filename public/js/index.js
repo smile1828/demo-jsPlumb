@@ -29,7 +29,7 @@
                     var left = parseInt(ui.offset.left - $(this).offset().left);
                     var top = parseInt(ui.offset.top - $(this).offset().top);
                     var type = ui.helper.context.dataset.type;
-                
+
                     _index++;
                     var id = that.judgeId(type,_index);
                     var dom = $('<div class="node-common" id="' + id + '" data-type="'+type+'"><span class="node-text"></span></div>')
@@ -48,7 +48,7 @@
                             dom.addClass('node-node');
                             break;
                         case "judge":
-                            dom.addClass('node-judge'); 
+                            dom.addClass('node-judge');
                             break;
                     }
                     jsPlumb.addEndpoint(id, { anchors: "TopCenter" }, endpointStyle);
@@ -71,8 +71,8 @@
             // 单击选中，可删除
             currentDom.click(function(){
                 clearTimeout(nodeTimes);
-                //执行延时 
-                nodeTimes = setTimeout(function(){ 
+                //执行延时
+                nodeTimes = setTimeout(function(){
                     container.children('.node-common').removeClass('node-focus');
                     currentDom.addClass('node-focus');
                     var input = $("<input type='text' class='hide-input'/>");
@@ -107,14 +107,14 @@
                                     break;
                                 }
                             }
-                            return false;                               
-                        }              
+                            return false;
+                        }
                     });
                 },300);
             })
             // 双击添加文字
             currentDom.dblclick(function () {
-                // 取消上次延时未执行的方法 
+                // 取消上次延时未执行的方法
                 clearTimeout(nodeTimes );
                 container.children('.node-common').removeClass('node-focus');
                 currentDom.addClass('node-focus');
@@ -127,12 +127,12 @@
                 currentDom.append(input);
                 currentDom.keydown(function (event) {
                     if(event.keyCode==13){
-                        currentDom.children('span').html(currentDom.children("input.flow-input").val()); 
+                        currentDom.children('span').html(currentDom.children("input.flow-input").val());
                         currentDom.children("input.flow-input").remove();
                         currentDom.removeClass('node-focus');
                         jsPlumb.repaintEverything();
-                        return false;                               
-                    }              
+                        return false;
+                    }
                 });
             });
             // 拖拽改变大小
@@ -144,7 +144,7 @@
                 resize: function (event, ui) {
                     jsPlumb.repaint(ui.helper)
                     jsPlumb.repaintEverything()
-                                      
+
                 }
             })
         },
@@ -156,11 +156,11 @@
             var that = this;
             jsPlumb.bind("click", function (conn, originalEvent) {
                 if(!isNew){
-                      return false;           
-                }  
-                // 取消上次延时未执行的方法 
-                clearTimeout(lineTimes); 
-                //执行延时 
+                      return false;
+                }
+                // 取消上次延时未执行的方法
+                clearTimeout(lineTimes);
+                //执行延时
                 lineTimes = setTimeout(function(){
                     jsPlumb.repaintEverything();
                     var target = originalEvent.toElement;
@@ -177,10 +177,10 @@
                                 labelInfo.currentLabel.remove();
                             }
                             jsPlumb.detach(conn);
-                            return false;                               
-                        }  
-                    })                                   
-                },300);           
+                            return false;
+                        }
+                    })
+                },300);
             });
             return this;
         },
@@ -192,11 +192,11 @@
             var that = this;
             jsPlumb.bind("dblclick", function (conn, originalEvent) {
                 if(!isNew){
-                    return false;     
+                    return false;
                 }
-                // 取消上次延时未执行的方法 
-                clearTimeout(lineTimes ); 
-                //如果连接线有lebel，则获取焦点，如果没有，则添加。                
+                // 取消上次延时未执行的方法
+                clearTimeout(lineTimes );
+                //如果连接线有lebel，则获取焦点，如果没有，则添加。
                 var labelInfo = that.lineIsHasLabel(conn);
                 if(labelInfo.isHasLabel){
                     labelInfo.currentLabel.removeClass('label-blur').addClass('label-focus');
@@ -208,7 +208,7 @@
                         labelInfo.currentLabel.append(inputDom)
                     return false;
                 }
-                _index++;  
+                _index++;
                 var left =  parseInt(originalEvent.clientX-container.offset().left)
                 var top =  parseInt(originalEvent.clientY-container.offset().top)
                 var id = that.judgeId("label",_index);
@@ -228,19 +228,19 @@
                             labelDom.remove();
                             return false;
                         }
-                        labelDom.children('span').html(input.val()); 
+                        labelDom.children('span').html(input.val());
                         input.remove();
                         labelDom.removeClass('label-focus').addClass('label-blur');
                         return false;
-                    }                              
+                    }
                 });
 
                 // label 可以拖动
                 jsPlumb.draggable(id);
-                labelDom.draggable({ containment: "parent" });  
+                labelDom.draggable({ containment: "parent" });
 
                 // label 的点击事件
-                that.labelClick(id);          
+                that.labelClick(id);
             });
             return this;
         },
@@ -253,7 +253,7 @@
             // 单击选中，可删除
             currentDom.click(function(){
                 clearTimeout(labelTimes);
-                labelTimes = setTimeout(function(){ 
+                labelTimes = setTimeout(function(){
                     container.children('.line-label').removeClass('label-focus').addClass('label-blur');
                     currentDom.addClass('label-focus').removeClass('label-blur');
                     var input = $("<input type='text' class='hide-input'/>");
@@ -265,14 +265,14 @@
                         event=event||window.event
                         if(event.keyCode==8 || event.keyCode==46){  //8--backspace;46--delete
                             currentDom.remove();
-                            return false;                               
-                        }              
+                            return false;
+                        }
                     });
                 },300);
             })
             // 双击添加文字
             currentDom.dblclick(function () {
-                // 取消上次延时未执行的方法 
+                // 取消上次延时未执行的方法
                 clearTimeout(labelTimes );
                 container.children('.line-label').removeClass('label-focus').addClass('label-blur');
                 currentDom.addClass('label-focus').removeClass('label-blur');
@@ -285,11 +285,11 @@
                 currentDom.append(input);
                 currentDom.keydown(function (event) {
                     if(event.keyCode==13){
-                        currentDom.children('span').html(currentDom.children("input.label-input").val()); 
+                        currentDom.children('span').html(currentDom.children("input.label-input").val());
                         currentDom.children("input.label-input").remove();
                         currentDom.removeClass('label-focus').addClass('label-blur');
-                        return false;                               
-                    }              
+                        return false;
+                    }
                 });
             });
             // 拖拽改变大小
@@ -314,7 +314,7 @@
                 if(focusNode.length != 0){
                     var isHasInput = focusNode.children("input.flow-input").length == 0 ? false : true;
                     if(isHasInput){
-                        focusNode.children('span').html(focusNode.children("input.flow-input").val()); 
+                        focusNode.children('span').html(focusNode.children("input.flow-input").val());
                         focusNode.children("input.flow-input").remove();
                         jsPlumb.repaintEverything();
                     }
@@ -332,7 +332,7 @@
                         focusLabel.children("input.label-input").remove();
                         focusLabel.removeClass('label-focus').addClass('label-blur');
                     }
-                }    
+                }
                 //节点，label，连接线取消选中状态
                 $('.node-common').removeClass('node-focus');
                 $('.line-label').removeClass('label-focus').addClass('label-blur');
@@ -346,9 +346,9 @@
                         item.setAttribute('stroke','#000000')
                     }
                 }
-                               
+
             })
-           
+
             return this;
         },
         /**
@@ -384,7 +384,7 @@
                     var $elem = $(elem);
                     var id = $elem.attr('id')
                     jsPlumb.draggable(id);
-                    $elem.draggable({ containment: "parent" });  
+                    $elem.draggable({ containment: "parent" });
                     that.labelClick(id);
                 });
             })
@@ -396,21 +396,24 @@
          */
         saveFlow:function(){
             var that = this;
-            $('#save').click(function () {        
+            $('#save').click(function () {
                 var connects = [];
+                console.log(jsPlumb.getAllConnections())
                 $.each(jsPlumb.getAllConnections(), function (idx, connection) {
+                    console.log(connection)
                     connects.push({
                       connectionId: connection.id,
                       pageSourceId: connection.sourceId,
                       pageTargetId: connection.targetId,
-                      sourcePoint: connection.endpoints[0].anchor.type,
-                      targetPoint: connection.endpoints[1].anchor.type,
+                      sourcePoint: connection.endpoints[0].anchor.anchors[0].type,
+                      targetPoint: connection.endpoints[1].anchor.anchors[1].type,
                     });
                 });
+                console.log(connects)
                 var blocks = [];
                 $("#flow-main .node-common").each(function (idx, elem) {
                     var $elem = $(elem);
-                    console.log($elem);
+                    // console.log($elem);
                     var blockId = $elem.attr('id');
                     var blockContent = $elem.children('.node-text').html();
                     blocks.push({
@@ -450,7 +453,7 @@
                     isNew = false;
                     that.draw(flowData);
                     layer.close(index);
-                });                
+                });
             })
             return this;
         },
@@ -525,7 +528,7 @@
             var doms = $('#'+id)
             if(doms.length != 0){
                 _index = num + 1;
-                return judgeId(type,_index);     
+                return judgeId(type,_index);
             }
             return type + num;
         },
@@ -574,10 +577,10 @@
                             dom.addClass('node-node');
                             break;
                         case "judge":
-                            dom.addClass('node-judge'); 
+                            dom.addClass('node-judge');
                             break;
                     }
-                $('#flow-main').append(dom);               
+                $('#flow-main').append(dom);
             })
             var connect = data.connects;
             connect.forEach(function(item,index){
@@ -586,7 +589,7 @@
                     source: item.pageSourceId,
                     target: item.pageTargetId,
                     anchor: [item.sourcePoint, item.targetPoint],
-                    endpoint: ["Dot", { radius: 8 }], 
+                    endpoint: ["Dot", { radius: 8 }],
                     connectorStyle: connectorPaintStyle,//连接线的颜色，大小样式
                     connectorHoverStyle: connectorHoverStyle,
                     paintStyle: { strokeStyle: "#000000",
@@ -594,13 +597,13 @@
                                     radius: 2,
                                     lineWidth: 2},
                     connector: ["Flowchart", { stub: [20, 30], gap: 5, cornerRadius: 3, alwaysRespectStubs: true }],
-                    overlays: [["Arrow", { width: 10, length: 10, location: 1 }]],                
+                    overlays: [["Arrow", { width: 10, length: 10, location: 1 }]],
                     endpointStyle: { fillStyle: 'transparent', strokeStyle: "#000000", lineWidth: 1 ,radius: 2,},
                     isSource: false,
                     isTarget: false
                 })
                 })
-                
+
             })
             var lineDescs = data.lineDescs;
             lineDescs.forEach(function(item,index){
@@ -611,7 +614,7 @@
             })
         },
     }
-    main.init(); 
+    main.init();
     main.draw(data);
 })();
 
