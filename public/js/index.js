@@ -406,7 +406,7 @@
                       pageSourceId: connection.sourceId,
                       pageTargetId: connection.targetId,
                       sourcePoint: connection.endpoints[0].anchor.anchors[0].type,
-                      targetPoint: connection.endpoints[1].anchor.anchors[1].type,
+                      targetPoint: connection.endpoints[0].anchor.anchors[1].type,
                     });
                 });
                 console.log(connects)
