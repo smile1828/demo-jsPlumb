@@ -405,8 +405,8 @@
                       connectionId: connection.id,
                       pageSourceId: connection.sourceId,
                       pageTargetId: connection.targetId,
-                      sourcePoint: connection.endpoints[0].anchor.anchors[0].type,
-                      targetPoint: connection.endpoints[0].anchor.anchors[1].type,
+                      sourcePoint: connection.endpoints[0].anchor.anchors ? connection.endpoints[0].anchor.anchors[0].type : connection.endpoints[0].anchor.type,
+                      targetPoint: connection.endpoints[1].anchor.anchors ? connection.endpoints[1].anchor.anchors[1].type : connection.endpoints[1].anchor.type,
                     });
                 });
                 console.log(connects)
@@ -416,14 +416,16 @@
                     // console.log($elem);
                     var blockId = $elem.attr('id');
                     var blockContent = $elem.children('.node-text').html();
+                    console.log($elem.width())
+                    console.log($elem.height())
                     blocks.push({
                         blockId: blockId,
                         blockContent: blockContent,
                         type: $elem.data("type"),
                         blockX: parseInt($elem.css("left"), 10),
                         blockY: parseInt($elem.css("top"), 10),
-                        width: parseInt($elem.width(), 10) + 24,
-                        height: parseInt($elem.height(), 10) + 16,
+                        width: parseInt($elem.width(), 10) + 24 + 4,
+                        height: parseInt($elem.height(), 10) + 16 + 4,
                     });
                 });
                 var lineDescs = [];
